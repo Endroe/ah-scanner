@@ -24,6 +24,11 @@ function initializePopup() {
   });
 }
 
+function productTitleHasSize(productInfo) {
+
+  return productInfo?.weight && /\d+\s?(g|gram|kg|ml|l|liter|litre)/i.test(productInfo.weight);
+}
+
 function injectContentScript(tabId) {
   return chrome.scripting.executeScript({
     target: { tabId: tabId },
@@ -64,7 +69,37 @@ function displayStatusMessage(message) {
   statusElement.classList.remove("hidden");
 }
 
+function showFilteredProductInfo(productInfo) {
+  const chipContainer = document.getElementById("filter-chip-container");
+  chipContainer.innerHTML = "";
+  
+  if (productTitleHasSize(productInfo)) {
+    const chip = document.createElement("div");
+    chip.className = `
+      size-chip px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full 
+      transition-opacity duration-200 cursor-pointer hover:bg-blue-200 
+      flex items-center select-none
+    `.trim();
+  
+    chip.textContent = "Filtered by Size";
+  
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("opacity-50");
+  
+      const isActive = !chip.classList.contains("opacity-50");
+      console.log("Size filter active:", isActive);
+  
+      // TODO: apply functionality;
+    });
+  
+    chipContainer.appendChild(chip);
+  }
+}
+
 function displayProductInfo(productInfo) {
+
+  showFilteredProductInfo(productInfo);
+
   document.getElementById("status").classList.add("hidden");
   document.getElementById("product-info").classList.remove("hidden");
   document.getElementById("loading").classList.remove("hidden");
